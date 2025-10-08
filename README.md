@@ -1,16 +1,29 @@
-## Hi there 👋
+# Resize P - Professional Image Resizer
 
-<!--
-**resizep/ResizeP** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+A Canva-style image resizing tool built with HTML, CSS, JavaScript, and Firebase.
 
-Here are some ideas to get you started:
+![Resize P Logo](logo.png)
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+## 🚀 Features
+
+### 🆓 Free Users:
+- Basic image resizing
+- 4 preset sizes (Instagram, Facebook, Twitter, YouTube)
+- Image quality selection
+- Basic download functionality
+- Drag & drop image upload
+
+### 💎 Registered Users:
+- 50+ social media sizes
+- Custom size input
+- Batch resize capabilities  
+- Watermark addition
+- Project save/load system
+- Full history tracking
+- Premium templates
+
+## 🛠️ Setup Instructions
+
+### 1. Clone or Download
+```bash
+git clone https://github.com/your-username/resize-p.git
