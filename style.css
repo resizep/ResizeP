@@ -369,3 +369,26 @@ footer {
         padding: 1rem;
     }
 }
+/* Footer Links Styling */
+.footer-link {
+    color: #38B6FF;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.footer-link:hover {
+    color: #0099e6;
+    text-decoration: underline;
+    transform: translateY(-1px);
+}
+
+.footer-section a {
+    color: #38B6FF;
+    text-decoration: none;
+}
+
+.footer-section a:hover {
+    color: #0099e6;
+    text-decoration: underline;
+}
