@@ -286,3 +286,26 @@ class ResizePApp {
 document.addEventListener('DOMContentLoaded', () => {
     new ResizePApp();
 });
+// New upload button functionality
+setupNewUploadButton() {
+    const uploadNewBtn = document.getElementById('uploadNewBtn');
+    const uploadArea = document.getElementById('uploadArea');
+    const imageInput = document.getElementById('imageInput');
+
+    uploadNewBtn.addEventListener('click', () => {
+        imageInput.click();
+    });
+
+    // Show/hide new upload button based on image state
+    this.canvas.on('object:added', () => {
+        uploadNewBtn.style.display = 'block';
+        uploadArea.style.display = 'none';
+    });
+
+    this.canvas.on('object:removed', () => {
+        if (this.canvas.getObjects().length === 0) {
+            uploadNewBtn.style.display = 'none';
+            uploadArea.style.display = 'block';
+        }
+    });
+}
