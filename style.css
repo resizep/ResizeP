@@ -24,8 +24,8 @@ body {
 
 /* Header */
 header {
-    background: var(--white);
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid #38B6FF;
+}
     padding: 1rem 2rem;
     display: flex;
     justify-content: space-between;
@@ -51,7 +51,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(148, 64, 220, 0.1);
+    box-shadow: 0 2px 10px rgba(56, 182, 255, 0.1);
 }
 
 .logo-container {
@@ -122,14 +122,14 @@ header {
 .sidebar {
     width: 300px;
     background: var(--white);
-    border: 2px solid var(--primary-color);
+    border: 2px solid #38B6FF;
     border-radius: 10px;
     padding: 1.5rem;
-    box-shadow: 0 4px 15px rgba(148, 64, 220, 0.1);
+    box-shadow: 0 4px 15px rgba(56, 182, 255, 0.1);
 }
 
 .upload-area {
-    border: 2px dashed var(--primary-color);
+    border: 2px dashed #38B6FF;
     border-radius: 8px;
     padding: 2rem;
     text-align: center;
@@ -172,7 +172,7 @@ header {
 select, input {
     width: 100%;
     padding: 0.8rem;
-    border: 2px solid var(--primary-color);
+    border: 2px solid #38B6FF;
     border-radius: 5px;
     background: var(--white);
     font-size: 0.9rem;
@@ -214,7 +214,7 @@ select, input {
 .btn-secondary {
     background: var(--white);
     color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    border: 2px solid #38B6FF;
 }
 
 .btn-secondary:hover {
@@ -231,11 +231,11 @@ select, input {
 
 .canvas-container {
     flex: 1;
-    border: 2px solid var(--primary-color);
+    border: 2px solid #38B6FF;
     border-radius: 10px;
     overflow: hidden;
     background: var(--gray-light);
-    box-shadow: 0 4px 15px rgba(148, 64, 220, 0.1);
+    box-shadow:0 4px 15px rgba(56, 182, 255, 0.1);
 }
 
 #mainCanvas {
@@ -246,7 +246,7 @@ select, input {
 
 .preview-info {
     background: var(--white);
-    border: 2px solid var(--primary-color);
+    border: 2px solid #38B6FF;
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
@@ -273,7 +273,7 @@ select, input {
     background: var(--white);
     margin: 10% auto;
     padding: 2rem;
-    border: 3px solid var(--primary-color);
+    border: 3px solid #38B6FF;
     border-radius: 10px;
     width: 90%;
     max-width: 400px;
@@ -317,7 +317,7 @@ select, input {
 /* Footer */
 footer {
     background: var(--white);
-    border-top: 2px solid var(--primary-color);
+    border-top: 2px solid #38B6FF;
     padding: 2rem;
     margin-top: 2rem;
 }
@@ -338,7 +338,7 @@ footer {
 .footer-divider {
     width: 2px;
     height: 80px;
-    background: var(--primary-color);
+    background: #38B6FF;
     margin: 0 2rem;
 }
 
