@@ -11,8 +11,9 @@ class ResizePApp {
     init() {
         this.initializeCanvas();
         this.setupEventListeners();
-        this.loadPremiumSizes();
+        this.setupNewUploadButton();
         this.checkAuthState();
+        this.setupUserMenu();
     }
 
     initializeCanvas() {
@@ -21,14 +22,11 @@ class ResizePApp {
             height: 600,
             backgroundColor: '#ffffff'
         });
+        
+        // Hide canvas initially, show placeholder
+        this.canvas.getElement().style.display = 'none';
     }
-init() {
-    this.initializeCanvas();
-    this.setupEventListeners();
-    this.setupNewUploadButton(); // এই লাইন যোগ করুন
-    this.loadPremiumSizes();
-    this.checkAuthState();
-}
+
     setupEventListeners() {
         // File upload
         const uploadArea = document.getElementById('uploadArea');
@@ -50,6 +48,7 @@ init() {
                 const [width, height] = e.target.value.split('x').map(Number);
                 document.getElementById('customWidth').value = width;
                 document.getElementById('customHeight').value = height;
+                this.applyPresetSize(width, height);
             }
         });
 
@@ -64,19 +63,47 @@ init() {
         });
 
         // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
-            document.getElementById('dropdownMenu').classList.remove('show');
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.nav-menu')) {
+                document.getElementById('dropdownMenu').classList.remove('show');
+                document.getElementById('userDropdown').classList.remove('show');
+            }
+        });
+    }
+
+    setupUserMenu() {
+        const userToggle = document.getElementById('userToggle');
+        const userDropdown = document.getElementById('userDropdown');
+
+        if (userToggle) {
+            userToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                userDropdown.classList.toggle('show');
+            });
+        }
+    }
+
+    setupNewUploadButton() {
+        const uploadNewBtn = document.getElementById('uploadNewBtn');
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+
+        uploadNewBtn.addEventListener('click', () => {
+            imageInput.click();
         });
     }
 
     handleDragOver(e) {
         e.preventDefault();
-        e.currentTarget.style.background = '#f0e6ff';
+        e.currentTarget.style.background = 'var(--primary-light)';
+        e.currentTarget.style.borderColor = 'var(--primary-dark)';
     }
 
     handleDrop(e) {
         e.preventDefault();
-        e.currentTarget.style.background = '';
+        const uploadArea = e.currentTarget;
+        uploadArea.style.background = '';
+        uploadArea.style.borderColor = 'var(--primary-color)';
         
         const files = e.dataTransfer.files;
         if (files.length > 0 && files[0].type.startsWith('image/')) {
@@ -91,52 +118,82 @@ init() {
         }
     }
 
-loadImage(file) {
-    const reader = new FileReader();
-    const uploadNewBtn = document.getElementById('uploadNewBtn');
-    const uploadArea = document.getElementById('uploadArea');
-    
-    reader.onload = (e) => {
-        fabric.Image.fromURL(e.target.result, (img) => {
-            // Clear canvas
-            this.canvas.clear();
-            
-            // Calculate scale to fit canvas
-            const scale = Math.min(
-                800 / img.width,
-                600 / img.height,
-                1
-            );
-            
-            img.scale(scale);
-            
-            // Center image
-            img.set({
-                left: (800 - img.width * scale) / 2,
-                top: (600 - img.height * scale) / 2,
-                selectable: true,
-                hasControls: true
+    loadImage(file) {
+        const reader = new FileReader();
+        const uploadNewBtn = document.getElementById('uploadNewBtn');
+        const uploadArea = document.getElementById('uploadArea');
+        const canvasPlaceholder = document.getElementById('canvasPlaceholder');
+        const mainCanvas = document.getElementById('mainCanvas');
+        
+        reader.onload = (e) => {
+            fabric.Image.fromURL(e.target.result, (img) => {
+                // Clear canvas
+                this.canvas.clear();
+                
+                // Show canvas, hide placeholder
+                mainCanvas.style.display = 'block';
+                canvasPlaceholder.style.display = 'none';
+                
+                // Calculate scale to fit canvas (maintain aspect ratio)
+                const maxWidth = 800;
+                const maxHeight = 600;
+                const scale = Math.min(
+                    maxWidth / img.width,
+                    maxHeight / img.height,
+                    1
+                );
+                
+                img.scale(scale);
+                
+                // Center image
+                img.set({
+                    left: (maxWidth - img.width * scale) / 2,
+                    top: (maxHeight - img.height * scale) / 2,
+                    selectable: true,
+                    hasControls: true,
+                    lockRotation: true,
+                    lockScalingFlip: true
+                });
+                
+                this.canvas.add(img);
+                this.currentImage = img;
+                
+                // Store original size
+                this.originalSize = {
+                    width: Math.round(img.width),
+                    height: Math.round(img.height)
+                };
+                
+                // Update custom size inputs with original dimensions
+                document.getElementById('customWidth').value = this.originalSize.width;
+                document.getElementById('customHeight').value = this.originalSize.height;
+                
+                // Show new upload button, hide upload area
+                uploadNewBtn.style.display = 'block';
+                uploadArea.style.display = 'none';
+                
+                this.updateSizeInfo();
+                
+                // Clear preset selection
+                document.getElementById('sizePresets').value = '';
             });
-            
-            this.canvas.add(img);
-            this.currentImage = img;
-            
-            // Store original size
-            this.originalSize = {
-                width: img.width,
-                height: img.height
-            };
-            
-            // Show new upload button, hide upload area
-            uploadNewBtn.style.display = 'block';
-            uploadArea.style.display = 'none';
-            
-            this.updateSizeInfo();
-        });
-    };
-    
-    reader.readAsDataURL(file);
-}
+        };
+        
+        reader.readAsDataURL(file);
+    }
+
+    applyPresetSize(width, height) {
+        if (!this.currentImage) {
+            alert('Please upload an image first!');
+            return;
+        }
+
+        // Update custom inputs
+        document.getElementById('customWidth').value = width;
+        document.getElementById('customHeight').value = height;
+
+        this.resizeImage();
+    }
 
     resizeImage() {
         if (!this.currentImage) {
@@ -147,31 +204,50 @@ loadImage(file) {
         const width = parseInt(document.getElementById('customWidth').value);
         const height = parseInt(document.getElementById('customHeight').value);
 
-        if (!width || !height) {
-            alert('Please enter valid width and height!');
+        if (!width || !height || width < 1 || height < 1) {
+            alert('Please enter valid width and height (minimum 1px)!');
             return;
         }
 
-        // Resize canvas
+        // IMPORTANT: Canvas container size remains fixed
+        // Only the internal canvas dimensions change
+        const container = document.getElementById('canvasContainer');
+        const containerWidth = container.clientWidth;
+        const containerHeight = container.clientHeight;
+
+        // Set canvas dimensions for rendering
         this.canvas.setDimensions({
             width: width,
             height: height
         });
 
-        // Scale image to fit new canvas size
+        // Scale image to fit new dimensions while maintaining aspect ratio
         const img = this.currentImage;
         const scaleX = width / this.originalSize.width;
         const scaleY = height / this.originalSize.height;
         const scale = Math.min(scaleX, scaleY);
 
-        img.scale(scale);
+        // Reset image to original size first
+        img.scale(1);
         img.set({
-            left: (width - img.width * scale) / 2,
-            top: (height - img.height * scale) / 2
+            width: this.originalSize.width,
+            height: this.originalSize.height
+        });
+
+        // Apply new scale
+        img.scale(scale);
+        
+        // Center image in new canvas
+        img.set({
+            left: (width - this.originalSize.width * scale) / 2,
+            top: (height - this.originalSize.height * scale) / 2
         });
 
         this.canvas.renderAll();
         this.updateSizeInfo();
+
+        // Show success message
+        this.showNotification('Image resized successfully!', 'success');
     }
 
     downloadImage() {
@@ -181,15 +257,44 @@ loadImage(file) {
         }
 
         const quality = parseFloat(document.getElementById('qualitySelect').value);
+        const width = parseInt(document.getElementById('customWidth').value);
+        const height = parseInt(document.getElementById('customHeight').value);
+        
+        // Create temporary canvas for download
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        tempCanvas.width = width;
+        tempCanvas.height = height;
+        
+        // Fill background with white
+        tempCtx.fillStyle = '#ffffff';
+        tempCtx.fillRect(0, 0, width, height);
+        
+        // Draw the resized image
         const dataURL = this.canvas.toDataURL({
             format: 'png',
-            quality: quality
+            quality: quality,
+            multiplier: 1
         });
-
-        const link = document.createElement('a');
-        link.download = `resized-image-${Date.now()}.png`;
-        link.href = dataURL;
-        link.click();
+        
+        const img = new Image();
+        img.onload = () => {
+            tempCtx.drawImage(img, 0, 0, width, height);
+            
+            const downloadURL = tempCanvas.toDataURL({
+                format: 'png',
+                quality: quality
+            });
+            
+            const link = document.createElement('a');
+            link.download = `resized-image-${width}x${height}-${Date.now()}.png`;
+            link.href = downloadURL;
+            link.click();
+            
+            this.showNotification('Image downloaded successfully!', 'success');
+        };
+        img.src = dataURL;
     }
 
     updateSizeInfo() {
@@ -216,38 +321,13 @@ loadImage(file) {
         }
     }
 
-    loadPremiumSizes() {
-        const premiumSizes = [
-            { name: 'Instagram Story (1080x1920)', value: '1080x1920' },
-            { name: 'Facebook Cover (820x312)', value: '820x312' },
-            { name: 'Twitter Header (1500x500)', value: '1500x500' },
-            { name: 'LinkedIn Post (1200x627)', value: '1200x627' },
-            { name: 'Pinterest Pin (1000x1500)', value: '1000x1500' },
-            { name: 'TikTok Video (1080x1920)', value: '1080x1920' },
-            { name: 'WhatsApp Status (1080x1920)', value: '1080x1920' },
-            { name: 'YouTube Channel Art (2560x1440)', value: '2560x1440' },
-            { name: 'Twitch Banner (1200x380)', value: '1200x380' },
-            { name: 'Discord Banner (960x540)', value: '960x540' }
-        ];
-
-        const premiumGroup = document.getElementById('premiumSizes');
-        premiumSizes.forEach(size => {
-            const option = document.createElement('option');
-            option.value = size.value;
-            option.textContent = size.name;
-            premiumGroup.appendChild(option);
-        });
-    }
-
     checkAuthState() {
-        // This will be integrated with Firebase Auth
         const user = this.getCurrentUser();
         this.isLoggedIn = !!user;
         this.updateUIForAuthState();
     }
 
     getCurrentUser() {
-        // Placeholder - will be implemented with Firebase
         return localStorage.getItem('resizeP_user');
     }
 
@@ -256,41 +336,107 @@ loadImage(file) {
         const saveProjectBtn = document.getElementById('saveProjectBtn');
         const loginBtn = document.getElementById('loginBtn');
         const logoutBtn = document.getElementById('logoutBtn');
+        const userMenu = document.getElementById('userMenu');
+        const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
 
         if (this.isLoggedIn) {
             premiumSizes.style.display = 'block';
             saveProjectBtn.style.display = 'block';
             loginBtn.style.display = 'none';
             logoutBtn.style.display = 'block';
+            userMenu.style.display = 'block';
+            mobileLoginBtn.style.display = 'none';
+            mobileLogoutBtn.style.display = 'block';
         } else {
             premiumSizes.style.display = 'none';
             saveProjectBtn.style.display = 'none';
             loginBtn.style.display = 'block';
             logoutBtn.style.display = 'none';
+            userMenu.style.display = 'none';
+            mobileLoginBtn.style.display = 'block';
+            mobileLogoutBtn.style.display = 'none';
         }
     }
 
-    saveProject() {
+    async saveProject() {
         if (!this.isLoggedIn) {
             alert('Please login to save projects!');
+            this.showAuthModal();
             return;
         }
 
-        const projectData = {
-            canvasData: this.canvas.toJSON(),
-            timestamp: new Date().toISOString(),
-            size: {
-                width: this.canvas.width,
-                height: this.canvas.height
-            }
-        };
+        if (!this.currentImage) {
+            alert('Please upload an image first!');
+            return;
+        }
 
-        // Save to localStorage (will be replaced with Firebase)
-        const projects = JSON.parse(localStorage.getItem('resizeP_projects') || '[]');
-        projects.push(projectData);
-        localStorage.setItem('resizeP_projects', JSON.stringify(projects));
+        try {
+            // Simulate project saving
+            const projectData = {
+                canvasData: this.canvas.toJSON(),
+                timestamp: new Date().toISOString(),
+                size: {
+                    width: this.canvas.width,
+                    height: this.canvas.height
+                },
+                original_size: this.originalSize,
+                project_name: `Project_${Date.now()}`
+            };
 
-        alert('Project saved successfully!');
+            // Save to localStorage (replace with your backend)
+            const projects = JSON.parse(localStorage.getItem('resizeP_projects') || '[]');
+            projects.push(projectData);
+            localStorage.setItem('resizeP_projects', JSON.stringify(projects));
+
+            this.showNotification('Project saved successfully!', 'success');
+            
+        } catch (error) {
+            console.error('Error saving project:', error);
+            this.showNotification('Error saving project. Please try again.', 'error');
+        }
+    }
+
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.textContent = message;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${type === 'success' ? 'var(--success)' : 'var(--danger)'};
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 3000;
+            font-weight: 600;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Animate in
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transform = 'translateX(100%)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 3000);
+    }
+
+    showAuthModal() {
+        document.getElementById('authModal').style.display = 'block';
     }
 }
 
@@ -298,70 +444,3 @@ loadImage(file) {
 document.addEventListener('DOMContentLoaded', () => {
     new ResizePApp();
 });
-// New upload button functionality
-setupNewUploadButton() {
-    const uploadNewBtn = document.getElementById('uploadNewBtn');
-    const uploadArea = document.getElementById('uploadArea');
-    const imageInput = document.getElementById('imageInput');
-
-    uploadNewBtn.addEventListener('click', () => {
-        imageInput.click();
-    });
-
-    // Show/hide new upload button based on image state
-    this.canvas.on('object:added', () => {
-        uploadNewBtn.style.display = 'block';
-        uploadArea.style.display = 'none';
-    });
-
-    this.canvas.on('object:removed', () => {
-        if (this.canvas.getObjects().length === 0) {
-            uploadNewBtn.style.display = 'none';
-            uploadArea.style.display = 'block';
-        }
-    });
-}
-async saveProject() {
-    if (!this.isLoggedIn) {
-        alert('Please login to save projects!');
-        this.showAuthModal();
-        return;
-    }
-
-    if (!this.currentImage) {
-        alert('Please upload an image first!');
-        return;
-    }
-
-    try {
-        const { data: { user }, error: userError } = await window.authModule.supabase.auth.getUser();
-        if (userError || !user) throw new Error('User not authenticated');
-
-        const projectData = {
-            user_id: user.id,
-            canvas_data: this.canvas.toJSON(),
-            timestamp: new Date().toISOString(),
-            size: {
-                width: this.canvas.width,
-                height: this.canvas.height
-            },
-            original_size: this.originalSize,
-            project_name: `Project_${Date.now()}`
-        };
-
-        // Save to Supabase
-        const { data, error } = await window.authModule.supabase
-            .from('projects')
-            .insert([projectData])
-            .select();
-
-        if (error) throw error;
-        
-        alert('Project saved successfully!');
-        console.log('Project saved with ID:', data[0].id);
-
-    } catch (error) {
-        console.error('Error saving project:', error);
-        alert('Error saving project. Please try again.');
-    }
-}
