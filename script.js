@@ -22,7 +22,13 @@ class ResizePApp {
             backgroundColor: '#ffffff'
         });
     }
-
+init() {
+    this.initializeCanvas();
+    this.setupEventListeners();
+    this.setupNewUploadButton(); // এই লাইন যোগ করুন
+    this.loadPremiumSizes();
+    this.checkAuthState();
+}
     setupEventListeners() {
         // File upload
         const uploadArea = document.getElementById('uploadArea');
@@ -85,46 +91,52 @@ class ResizePApp {
         }
     }
 
-    loadImage(file) {
-        const reader = new FileReader();
-        
-        reader.onload = (e) => {
-            fabric.Image.fromURL(e.target.result, (img) => {
-                // Clear canvas
-                this.canvas.clear();
-                
-                // Calculate scale to fit canvas
-                const scale = Math.min(
-                    800 / img.width,
-                    600 / img.height,
-                    1
-                );
-                
-                img.scale(scale);
-                
-                // Center image
-                img.set({
-                    left: (800 - img.width * scale) / 2,
-                    top: (600 - img.height * scale) / 2,
-                    selectable: true,
-                    hasControls: true
-                });
-                
-                this.canvas.add(img);
-                this.currentImage = img;
-                
-                // Store original size
-                this.originalSize = {
-                    width: img.width,
-                    height: img.height
-                };
-                
-                this.updateSizeInfo();
+loadImage(file) {
+    const reader = new FileReader();
+    const uploadNewBtn = document.getElementById('uploadNewBtn');
+    const uploadArea = document.getElementById('uploadArea');
+    
+    reader.onload = (e) => {
+        fabric.Image.fromURL(e.target.result, (img) => {
+            // Clear canvas
+            this.canvas.clear();
+            
+            // Calculate scale to fit canvas
+            const scale = Math.min(
+                800 / img.width,
+                600 / img.height,
+                1
+            );
+            
+            img.scale(scale);
+            
+            // Center image
+            img.set({
+                left: (800 - img.width * scale) / 2,
+                top: (600 - img.height * scale) / 2,
+                selectable: true,
+                hasControls: true
             });
-        };
-        
-        reader.readAsDataURL(file);
-    }
+            
+            this.canvas.add(img);
+            this.currentImage = img;
+            
+            // Store original size
+            this.originalSize = {
+                width: img.width,
+                height: img.height
+            };
+            
+            // Show new upload button, hide upload area
+            uploadNewBtn.style.display = 'block';
+            uploadArea.style.display = 'none';
+            
+            this.updateSizeInfo();
+        });
+    };
+    
+    reader.readAsDataURL(file);
+}
 
     resizeImage() {
         if (!this.currentImage) {
