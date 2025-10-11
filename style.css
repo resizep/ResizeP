@@ -392,3 +392,31 @@ footer {
     color: #0099e6;
     text-decoration: underline;
 }
+/* New Upload Button Styles */
+.btn-upload-new {
+    width: 100%;
+    padding: 12px;
+    background: #38B6FF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-upload-new:hover {
+    background: #0099e6;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(56, 182, 255, 0.3);
+}
+
+.btn-upload-new:active {
+    transform: translateY(0);
+}
