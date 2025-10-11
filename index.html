@@ -5,24 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resize P - Professional Image Resizer</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
     <script type="module" src="supabase-config.js"></script>
-<script type="module" src="auth.js"></script>
+    <script type="module" src="auth.js"></script>
 </head>
 <body>
     <!-- Header -->
     <header>
-       <div class="logo-container">
-    <img src="logo.png" alt="Resize P" class="logo">
-</div>
+        <div class="logo-container">
+            <img src="logo.png" alt="Resize P" class="logo">
+        </div>
         <nav class="nav-menu">
-            <button class="menu-toggle" id="menuToggle">☰</button>
+            <div class="auth-section">
+                <button class="auth-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i> Login
+                </button>
+                <div class="user-menu" id="userMenu" style="display:none;">
+                    <button class="user-btn" id="userToggle">
+                        <i class="fas fa-user"></i>
+                        <span id="userName">User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <a href="#" id="profileBtn"><i class="fas fa-user-circle"></i> Profile</a>
+                        <a href="#" id="historyBtn"><i class="fas fa-history"></i> History</a>
+                        <a href="#" id="projectsBtn"><i class="fas fa-project-diagram"></i> My Projects</a>
+                        <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+            <button class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="#" id="historyBtn">History</a>
-                <a href="#" id="projectsBtn">My Projects</a>
-                <a href="#" id="profileBtn">Profile</a>
-                <a href="#" id="loginBtn">Login</a>
-                <a href="#" id="logoutBtn" style="display:none;">Logout</a>
+                <a href="#" id="mobileProfileBtn"><i class="fas fa-user-circle"></i> Profile</a>
+                <a href="#" id="mobileHistoryBtn"><i class="fas fa-history"></i> History</a>
+                <a href="#" id="mobileProjectsBtn"><i class="fas fa-project-diagram"></i> My Projects</a>
+                <a href="#" id="mobileLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                <a href="#" id="mobileLogoutBtn" style="display:none;"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </nav>
     </header>
@@ -48,67 +69,100 @@
             <div class="sidebar">
                 <div class="upload-section">
                     <div class="upload-area" id="uploadArea">
-                        
-        <span>📁 Drag & Drop Image Here</span>
-        <input type="file" id="imageInput" accept="image/*">
-    </div>
-    <!-- নতুন বাটন যোগ করুন -->
-    <button id="uploadNewBtn" class="btn-upload-new" style="display: none;">
-        📤 Upload New Image
-    </button>
-</div>
-                    <!-- Size Presets -->
-                    <div class="tool-group">
-                        <label>Preset Sizes:</label>
-                        <select id="sizePresets">
-                            <optgroup label="Free Sizes">
-                                <option value="1080x1080">Instagram Post (1080x1080)</option>
-                                <option value="1200x630">Facebook Post (1200x630)</option>
-                                <option value="1200x675">Twitter Post (1200x675)</option>
-                                <option value="1280x720">YouTube Thumbnail (1280x720)</option>
-                            </optgroup>
-                            <optgroup label="Premium Sizes" id="premiumSizes" style="display:none;">
-                                <!-- Premium sizes will be loaded dynamically -->
-                            </optgroup>
-                        </select>
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Drag & Drop Image Here</span>
+                        <span class="upload-hint">or click to browse</span>
+                        <input type="file" id="imageInput" accept="image/*">
                     </div>
+                    <button id="uploadNewBtn" class="btn-upload-new" style="display: none;">
+                        <i class="fas fa-plus"></i> Upload New Image
+                    </button>
+                </div>
 
-                    <!-- Custom Size -->
-                    <div class="tool-group">
-                        <label>Custom Size:</label>
-                        <div class="size-inputs">
-                            <input type="number" id="customWidth" placeholder="Width">
-                            <input type="number" id="customHeight" placeholder="Height">
+                <!-- Size Presets -->
+                <div class="tool-group">
+                    <label><i class="fas fa-expand-alt"></i> Preset Sizes:</label>
+                    <select id="sizePresets">
+                        <option value="">Select Preset Size</option>
+                        <optgroup label="📱 Social Media">
+                            <option value="1080x1080">Instagram Post (1080x1080)</option>
+                            <option value="1080x1920">Instagram Story (1080x1920)</option>
+                            <option value="1200x630">Facebook Post (1200x630)</option>
+                            <option value="820x312">Facebook Cover (820x312)</option>
+                            <option value="1280x720">YouTube Thumbnail (1280x720)</option>
+                            <option value="2560x1440">YouTube Cover (2560x1440)</option>
+                            <option value="1200x675">Twitter Post (1200x675)</option>
+                            <option value="1500x500">Twitter Header (1500x500)</option>
+                        </optgroup>
+                        <optgroup label="💼 Professional">
+                            <option value="1200x627">LinkedIn Post (1200x627)</option>
+                            <option value="1000x1500">Pinterest Pin (1000x1500)</option>
+                            <option value="1080x1920">WhatsApp Status (1080x1920)</option>
+                            <option value="1080x1920">TikTok Video (1080x1920)</option>
+                        </optgroup>
+                        <optgroup label="🎮 Gaming & Streaming" id="premiumSizes">
+                            <option value="1200x380">Twitch Banner (1200x380)</option>
+                            <option value="960x540">Discord Banner (960x540)</option>
+                            <option value="1920x1080">Stream Overlay (1920x1080)</option>
+                        </optgroup>
+                        <optgroup label="📄 Documents">
+                            <option value="1240x1754">A4 Paper (1240x1754)</option>
+                            <option value="2550x3300">Letter Size (2550x3300)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Custom Size -->
+                <div class="tool-group">
+                    <label><i class="fas fa-ruler-combined"></i> Custom Size:</label>
+                    <div class="size-inputs">
+                        <div class="input-group">
+                            <span>Width</span>
+                            <input type="number" id="customWidth" placeholder="Width" min="1">
+                        </div>
+                        <div class="input-group">
+                            <span>Height</span>
+                            <input type="number" id="customHeight" placeholder="Height" min="1">
                         </div>
                     </div>
+                </div>
 
-                    <!-- Quality -->
-                    <div class="tool-group">
-                        <label>Quality:</label>
-                        <select id="qualitySelect">
-                            <option value="1.0">High (100%)</option>
-                            <option value="0.8">Medium (80%)</option>
-                            <option value="0.6">Low (60%)</option>
-                        </select>
-                    </div>
+                <!-- Quality -->
+                <div class="tool-group">
+                    <label><i class="fas fa-gem"></i> Quality:</label>
+                    <select id="qualitySelect">
+                        <option value="1.0">High (100%)</option>
+                        <option value="0.8">Medium (80%)</option>
+                        <option value="0.6">Low (60%)</option>
+                    </select>
+                </div>
 
-                    <!-- Actions -->
-                    <div class="actions">
-                        <button id="resizeBtn" class="btn-primary">Resize Image</button>
-                        <button id="downloadBtn" class="btn-secondary">Download</button>
-                        <button id="saveProjectBtn" class="btn-secondary" style="display:none;">Save Project</button>
-                    </div>
+                <!-- Actions -->
+                <div class="actions">
+                    <button id="resizeBtn" class="btn-primary">
+                        <i class="fas fa-expand-arrows-alt"></i> Resize Image
+                    </button>
+                    <button id="downloadBtn" class="btn-secondary">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                    <button id="saveProjectBtn" class="btn-secondary" style="display:none;">
+                        <i class="fas fa-save"></i> Save Project
+                    </button>
                 </div>
             </div>
 
             <!-- Canvas Area -->
             <div class="canvas-area">
-                <div class="canvas-container">
+                <div class="canvas-container" id="canvasContainer">
                     <canvas id="mainCanvas"></canvas>
+                    <div class="canvas-placeholder" id="canvasPlaceholder">
+                        <i class="fas fa-image"></i>
+                        <p>Upload an image to start editing</p>
+                    </div>
                 </div>
                 <div class="preview-info">
-                    <p>Original Size: <span id="originalSize">-</span></p>
-                    <p>Current Size: <span id="currentSize">-</span></p>
+                    <p><i class="fas fa-ruler"></i> Original Size: <span id="originalSize">-</span></p>
+                    <p><i class="fas fa-expand"></i> Current Size: <span id="currentSize">-</span></p>
                 </div>
             </div>
         </div>
@@ -118,19 +172,36 @@
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h4>Resize P</h4>
-                <p>Professional image resizing tool</p>
+                <h4><i class="fas fa-magic"></i> Resize P</h4>
+                <p>Professional Image Resizer</p>
                 <p>Free & Premium Features</p>
-                <p>Canva-style editing</p>
+                <p>Canva-style Editing</p>
             </div>
+            
             <div class="footer-divider"></div>
+            
             <div class="footer-section">
-    <p><strong>
-        Developed By <a href="https://sznoakhali.vercel.app/" target="_blank" class="footer-link">Skill zone with Noakhali</a>
-    </strong></p>
-    <p>Contact: <a href="mailto:resizep4@gmail.com" class="footer-link">resizep4@gmail.com</a></p>
-    <p>Version 1.0</p>
-</div>
+                <p><strong>© Copyright 2025 Resize P</strong></p>
+                <p>All Rights Reserved</p>
+                <p>Secure Image Processing</p>
+            </div>
+            
+            <div class="footer-divider"></div>
+            
+            <div class="footer-section">
+                <p><strong>
+                    Developed By <a href="https://sznoakhali.vercel.app/" target="_blank" class="footer-link">
+                    <i class="fas fa-code"></i> Skill zone with Noakhali</a>
+                </strong></p>
+                <p><i class="fas fa-envelope"></i> Contact: 
+                    <a href="mailto:resizep4@gmail.com" class="footer-link">resizep4@gmail.com</a>
+                </p>
+                <p><i class="fas fa-info-circle"></i> Version 2.0</p>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2025 Resize P - Professional Image Resizing Tool | Secure & Fast Processing</p>
         </div>
     </footer>
 
