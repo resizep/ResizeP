@@ -321,3 +321,47 @@ setupNewUploadButton() {
         }
     });
 }
+async saveProject() {
+    if (!this.isLoggedIn) {
+        alert('Please login to save projects!');
+        this.showAuthModal();
+        return;
+    }
+
+    if (!this.currentImage) {
+        alert('Please upload an image first!');
+        return;
+    }
+
+    try {
+        const { data: { user }, error: userError } = await window.authModule.supabase.auth.getUser();
+        if (userError || !user) throw new Error('User not authenticated');
+
+        const projectData = {
+            user_id: user.id,
+            canvas_data: this.canvas.toJSON(),
+            timestamp: new Date().toISOString(),
+            size: {
+                width: this.canvas.width,
+                height: this.canvas.height
+            },
+            original_size: this.originalSize,
+            project_name: `Project_${Date.now()}`
+        };
+
+        // Save to Supabase
+        const { data, error } = await window.authModule.supabase
+            .from('projects')
+            .insert([projectData])
+            .select();
+
+        if (error) throw error;
+        
+        alert('Project saved successfully!');
+        console.log('Project saved with ID:', data[0].id);
+
+    } catch (error) {
+        console.error('Error saving project:', error);
+        alert('Error saving project. Please try again.');
+    }
+}
